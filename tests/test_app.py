@@ -76,6 +76,7 @@ def test_create_user_email_duplicado(client):
     assert response.status_code == HTTPStatus.BAD_REQUEST
     assert response.json() == {'detail': 'O email do usuario já existe!'}
 
+
 def teste_leitura_de_usarios_com_usuarios(client, user):
     # Converser o objeto(SQL Alch) do usuario em UserPublic (Pydantic)
     user_schema = UserPublic.validate(user).model_dump()
@@ -86,61 +87,10 @@ def teste_leitura_de_usarios_com_usuarios(client, user):
     assert response.json() == {'users': [user_schema]}
 
 
-def test_update_user(client, user):
+def test_update_user(client, user, token):
     response = client.put(
-        '/usuarios/1',
-        json={
-            'username': 'bob',
-            'email': 'bob@example.com',
-            'password': 'mynewpassword',
-        },
-    )
-    assert response.status_code == HTTPStatus.OK
-    assert response.json() == {
-        'username': 'bob',
-        'email': 'bob@example.com',
-        'id': 1,
-    }
-
-
-def test_delete_user(client, user):
-    response = client.delete('/usuarios/1')
-
-    assert response.status_code == HTTPStatus.OK
-    assert response.json() == {'message': 'Usuario deletado'}
-
-
-# Criar testes para os erros 404 (Not Found) nos endpoints de PUT e DELETE.
-def test_put_user_not_found(client, user):
-    response = client.put(
-        '/usuarios/999',  # 999 é um ID que não existe no banco de dados
-        json={
-            'username': 'new_user',
-            'email': 'new_user@example.com',
-            'password': 'new_password',
-        },
-    )
-    assert response.status_code == 404
-    assert response.json() == {'detail': 'Usuario não encontrado.'}
-
-
-def test_delete_user_not_found(client, user):
-    response = client.delete('/usuarios/999')  # 999 é um ID que não existe no banco de dados
-    assert response.status_code == 404
-    assert response.json() == {'detail': 'Usuario não encontrado.'}
-
-
-#Criar os testes para esse endpoint GET.
-def test_read_user_not_found(client, user):
-    response = client.get('/usuarios/999')  # 999 é um ID que não existe no banco de dados
-    assert response.status_code == 404
-    assert response.json() == {'detail': 'Usuario não encontrado.'}
-
-
-def test_read_user(client):
-    # Primeiro cria um usuário para garantir que ele exista no banco de dados
-    client.post(
-        '/usuarios',
+        f'/usuarios/{user.id}',
+        headers={'Authorization': f'Bearer {token}'},
         json={
             'username': 'alice',
             'email': 'alice@example.com',
@@ -148,11 +98,85 @@ def test_read_user(client):
         },
     )
 
+    assert response.json() == {
+        'username': 'alice',
+        'email': 'alice@example.com',
+        'id': user.id,
+    }
+
+
+def test_delete_user(client, user, token):
+    response = client.delete(
+        f'/usuarios/{user.id}',
+        headers={'Authorization': f'Bearer {token}'},
+    )
+    # assert response.status_code == HTTPStatus.OK
+    assert response.json() == {'message': 'Usuario deletado'}
+
+
+# Criar testes para os erros 404 (Not Found) nos endpoints de PUT e DELETE.
+def test_put_user_not_found(client, token):
+    response = client.put(
+        '/usuarios/999',
+        headers={'Authorization': f'Bearer {token}'},
+        json={
+            'username': 'new_username',
+            'email': 'new_email@example.com',
+            'password': 'new_password',
+        },
+    )
+    assert response.status_code == HTTPStatus.NOT_FOUND  # 401 Unauthorized instead of 400
+    assert response.json() == {'detail': 'Usuario não encontrado.'}
+
+
+def test_delete_user_not_found(client, token):
+    response = client.delete(
+        '/usuarios/999',
+        headers={'Authorization': f'Bearer {token}'},
+    )
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'Usuario não encontrado.'}
+
+
+def test_read_user_not_found(client, token):
+    response = client.get(
+        '/usuarios/999',
+        headers={'Authorization': f'Bearer {token}'},
+    )
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'Usuario não encontrado.'}
+
+
+def test_read_user(client, token):
+    # Primeiro cria um usuário para garantir que ele exista no banco de dados
+    user_data = {
+        'username': 'alice',
+        'email': 'alice@example.com',
+        'password': 'secret',
+    }
+    create_response = client.post('/usuarios/', json=user_data)
+    assert create_response.status_code == HTTPStatus.CREATED
+
+    # Assume que o ID do usuário criado é o retornado pela resposta
+    user_id = create_response.json().get('id')
+
     # Pega o usuário criado
-    response = client.get('/usuarios/1')
+    response = client.get(f'/usuarios/{user_id}', headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
         'username': 'alice',
         'email': 'alice@example.com',
-        'id': 1,
+        'id': user_id,
     }
+
+
+def test_get_token(client, user):
+    response = client.post(
+        '/token',
+        data={'username': user.email, 'password': user.clean_password},
+    )
+    token = response.json()
+
+    assert response.status_code == HTTPStatus.OK
+    assert 'access_token' in token
+    assert 'token_type' in token

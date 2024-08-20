@@ -11,21 +11,18 @@ from sqlalchemy.orm import Session
 from fast_zero.database import get_session
 from fast_zero.model import User
 from fast_zero.schemas import TokenData
+from fast_zero.settings import Settings
+
+settings = Settings()
 
 pwd_context = PasswordHash.recommended()
-oaut2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-SECRET_KEY = 'sua-chave'
-algorithm = 'HS256'
-ACESS_TOKEN_EXPIRE_MINUTES = 30
+oaut2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
-# Sujar a senha
 def get_password_hash(password: str):
     return pwd_context.hash(password)
 
 
-# Verificar se a senha limpa é a mesma do que a senha suja.
 def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -33,19 +30,17 @@ def verify_password(plain_password: str, hashed_password: str):
 def create_access_token(data: dict):
     to_encode = data.copy()
 
-    # Tempo de inspiração 30 minus após a criação do Token
     expire = datetime.now(tz=timezone.utc) + timedelta(
-        minutes=ACESS_TOKEN_EXPIRE_MINUTES
+        minutes=settings.ACESS_TOKEN_EXPIRE_MINUTES
     )
     to_encode.update({'exp': expire})
-    encode_jwt = encode(to_encode, SECRET_KEY, algorithm=algorithm)
+    encode_jwt = encode(to_encode, settings.SECRET_KEY, algorithm=settings.algorithm)
     return encode_jwt
 
 
-# Função só para lguns serem capazes de alterar
 def get_current_user(
-    session: Session = Depends(get_session),
-    token: str = Depends(oaut2_scheme),
+        session: Session = Depends(get_session),
+        token: str = Depends(oaut2_scheme),
 ):
     credentials_exception = HTTPException(
         status_code=HTTPStatus.UNAUTHORIZED,
@@ -54,7 +49,7 @@ def get_current_user(
     )
 
     try:
-        payload = decode(token, SECRET_KEY, algorithms=[algorithm])
+        payload = decode(token, settings.SECRET_KEY, algorithms=[settings.algorithm])
         username: str = payload.get('sub')
         if not username:
             raise credentials_exception

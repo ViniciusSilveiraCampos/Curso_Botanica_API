@@ -1,8 +1,8 @@
-- Esse é um projeto baseado no curso [FastAPI do ZERO](https://fastapidozero.dunossauro.com)
+- Esse é um projeto baseado no curso [FastAPI do ZERO](https://fastapidozero.dunossauro.com) 📺
 
 
 
-# Botanica API
+# Botanica API 🪴
 <div>
     <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)" >
     <img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi" >
@@ -14,7 +14,49 @@ Botanical API Bem-vindo ao projeto Botanical API! Esta API foi criada para forne
 
 O banco de dados vai ser extraido do site da [World Flora Online](https://wfoplantlist.org)
 
+
+- [O projeto.](#o-projeto)
+- [A API.](#a-api)
+- [O banco de dados.](#o-banco-de-dados--orm)
+- [Exemplos & Testes](#exemplos--testes)
+- [Tecnologias & Ferramentas](#tecnologias--ferramentas)
+
+## O PROJETO.
+## A API.
+## O BANCO DE DADOS | ORM. 
+
+## EXEMPLOS & TESTES
+
+## TECNOLOGIAS & FERRAMENTAS.
+
+
+- `FastAPI`  
+
+- `Pydantic` 
+
+
+- `SQLAlchemy` 
+
+
+<br>
+
+- `Coverage` 
+
+- `Pytest` 
+
+<br>
+
+- `Hospedagem:` [Fly.io](http://Fly.io) (Docker)
+
+## Licença
+
+Este repositório está licenciado sob a [MIT License](./LICENSE).
+
+
+
 ---
+
+<br>
 
 <div style="width: 50%; height: 2px; display: flex; justify-content: center; align-items: center; margin: 0 auto;">
     <a href="https://github.com/ViniciusSilveiraCampos" target="_blank"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" target="_blank"></a>

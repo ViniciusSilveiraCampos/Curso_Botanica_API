@@ -161,6 +161,21 @@ def test_update_not_user(client, user, token):
     assert response.json() == {'detail': 'Sem permissão o suficiente'}
 
 
+# Versão de teste do curso
+def test_update_user_with_wrong_user(client, other_user, token):
+    response = client.put(
+        f'/usuarios/{other_user.id}',
+        headers={'Authorization': f'Bearer {token}'},
+        json={
+            'username': 'bob',
+            'email': 'bob@example.com',
+            'password': 'mynewpassword',
+        },
+    )
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert response.json() == {'detail': 'Sem permissão o suficiente'}
+
+
 def test_delete_user(client, user, token):
     response = client.delete(
         f'/usuarios/{user.id}',

@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
@@ -7,8 +9,10 @@ from sqlalchemy.orm import Session
 from fast_zero.database import get_session
 from fast_zero.model import User
 from fast_zero.schemas import Token
-from fast_zero.security import verify_password, create_access_token
-from typing import Annotated
+from fast_zero.security import (create_access_token,
+                                get_current_user,
+                                verify_password,
+                                )
 
 router = APIRouter(
     prefix='/auth',
@@ -33,3 +37,12 @@ def login_for_acess_token(
     access_token = create_access_token(data={'sub': user.email})
 
     return {'access_token': access_token, 'token_type': 'Bearer'}
+
+
+@router.post('/refresh_token', response_model=Token)
+def refresh_access_token(
+        user: User = Depends(get_current_user),
+):
+    new_access_token = create_access_token(data={'sub': user.email})
+
+    return {'access_token': new_access_token, 'token_type': 'bearer'}

@@ -1,14 +1,39 @@
+import factory
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
+
 from fast_zero.app import app
 from fast_zero.database import get_session
+from fast_zero.model import Plantas, Flores
 from fast_zero.model import table_registry, User
-
 from fast_zero.security import get_password_hash
-import factory
+
+
+class FlowerFactory(factory.Factory):
+    class Meta:
+        model = Flores
+
+    nome = factory.Sequence(lambda n: f'Planta{n}')
+    nome_cientifico = factory.Sequence(lambda n: f'Nome_cientifico{n}')
+    classe = 'Magnoliopsida'
+    ordem = 'Caryophyllales'
+    familia = 'Cactaceae'
+    genero = "Teste"
+
+
+class PlantFactory(factory.Factory):
+    class Meta:
+        model = Plantas
+
+    nome = factory.Sequence(lambda n: f'Planta{n}')
+    nome_cientifico = factory.Sequence(lambda n: f'Nome_cientifico{n}')
+    classe = 'Magnoliopsida'
+    ordem = 'Caryophyllales'
+    familia = 'Cactaceae'
+    genero = "Teste"
 
 
 class UserFactory(factory.Factory):
@@ -22,8 +47,6 @@ class UserFactory(factory.Factory):
 
 @pytest.fixture
 def client(session):
-    # Tudo que depende do banco de dados em produção.
-    # Durante o momento de teste será sobreescrito para a utilização da função de teste.
     def fake_session():
         return session
 
@@ -39,8 +62,7 @@ def session():
     engine = create_engine('sqlite:///:memory:',
                            connect_args={'check_same_thread': False},
                            poolclass=StaticPool)
-    # Definindo para que ele não crie uma nova thread ao testar
-    # pois enquanto ele roda, ele está testando.
+
     table_registry.metadata.create_all(engine)
 
     with Session(engine) as session:
@@ -64,17 +86,61 @@ def user(session):
 
 
 @pytest.fixture
+def planta(session):
+    planta = PlantFactory()
+
+    session.add(planta)
+    session.commit()
+    session.refresh(planta)
+
+    return planta
+
+
+@pytest.fixture
+def other_planta(session):
+    v_planta = PlantFactory()
+
+    session.add(v_planta)
+    session.commit()
+    session.refresh(v_planta)
+
+    return v_planta
+
+
+@pytest.fixture
 def other_user(session):
     password = 'testtest'
-    user = UserFactory(password=get_password_hash(password))
+    v_user = UserFactory(password=get_password_hash(password))
 
-    session.add(user)
+    session.add(v_user)
     session.commit()
-    session.refresh(user)
+    session.refresh(v_user)
 
-    user.clean_password = 'testtest'
+    v_user.clean_password = 'testtest'
 
-    return user
+    return v_user
+
+@pytest.fixture
+def flor(session):
+    v_flor = FlowerFactory()
+
+    session.add(v_flor)
+    session.commit()
+    session.refresh(v_flor)
+
+    return v_flor
+
+
+@pytest.fixture
+def other_flor(session):
+    v_flor = FlowerFactory()
+
+    session.add(v_flor)
+    session.commit()
+    session.refresh(v_flor)
+
+    return v_flor
+
 
 @pytest.fixture
 def token(client, user):
@@ -95,13 +161,9 @@ def token_headers(client):
     }
     client.post('/usuarios', json=user_data)
 
-    # Autentica e obtém o token
     response = client.post('/token', data={
         'username': user_data['username'],
         'password': user_data['password'],
     })
-    token = response.json().get('access_token')
-    return {'Authorization': f'Bearer {token}'}
-
-
-
+    v_token = response.json().get('access_token')
+    return {'Authorization': f'Bearer {v_token}'}

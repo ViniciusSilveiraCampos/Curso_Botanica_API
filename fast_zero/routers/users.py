@@ -11,11 +11,11 @@ from fast_zero.model import User
 from fast_zero.schemas import Message, UserSchema, UserPublic, UserList
 from fast_zero.security import get_password_hash, get_current_user
 
+
 router = APIRouter(
     prefix='/usuarios',
     tags=['usuarios']
 )
-
 T_Session = Annotated[Session, Depends(get_session)]
 T_CurrentUser = Annotated[User, Depends(get_current_user)]
 

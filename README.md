@@ -13,7 +13,7 @@
 <br>
 Bem-vindo ao projeto Botanical API! Esta API foi criada para fornecer informações sobre algumas plantas e uma variedade de flores. É um modelo relativamente simples, com termos mais voltados a área científica. 
 
-<br>
+<br><br>
 
 - [O projeto.](#o-projeto-)
 - [A API.](#a-api-)
@@ -26,7 +26,7 @@ Bem-vindo ao projeto Botanical API! Esta API foi criada para fornecer informaç�
 
 # O PROJETO. 🌿
 
-O objetivo da API é criar e uma gerenciar algumas plantas. Tudo isso em um contexto bastante simplificado. Usando somente as funcionalidades que aprendemos no curso.
+O objetivo da API é criar e uma gerenciar algumas plantas. Tudo isso em um contexto bastante simplificado. Usando somente as funcionalidades básicas para demonstração.
 
 > Por que as flores estão separadas das plantas? Por que toda flor é uma planta, mas nem toda planta é uma flor! E espero posteriormente dividir em mais categorias.
 
@@ -147,8 +147,6 @@ Deleta um usuário específico do sistema.
 **AVISO ⚠️**
 
 > O tempo de expiração do token deve ser de 30 minutos, o algorítimo usado |deve ser HS256 e o subject deve ser o email
-
-Aqui está a documentação com as respostas esperadas em JSON, sem o formato Markdown:
 
 <br><br>
 
@@ -350,8 +348,6 @@ Aqui está a documentação com as respostas esperadas em JSON, sem o formato Ma
 
 ---
 
-Isso deve ajudar a documentar a API com as respostas de JSON formatadas corretamente.
-
 
 # O BANCO DE DADOS | ORM. 🌵
 
@@ -408,11 +404,7 @@ Este projeto utilizou web scraping para extrair informações taxonômicas sobre
 
 2. Pydantic
 
-
 3. SQLAlchemy 
-
-
-<br>
 
 4. Coverage
 
